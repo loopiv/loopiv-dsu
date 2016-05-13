@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Checks for a file created by a custom Dell OMSA alert action
+#  and sends the contents to the "omsa-alerts" mail alias.
+#
+# Place in /etc/cron.hourly and verify executable
+
+ALERT=/root/omsa_alert.txt
+
+if [ -e $ALERT ];then
+    mail -s "OMSA alert" omsa-alerts < $ALERT
+    /bin/rm $ALERT
+fi
