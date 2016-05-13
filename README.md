@@ -51,6 +51,6 @@ services, and configures email alerts.
 
 ## Limitations
 
-* Dell PowerEdge systems running EL6 and 7 only.  Tested on CentOS 6 and 7.
-* Puppet < 4.x
+* Dell PowerEdge systems running EL6 and 7 only.
+* Tested on CentOS 6 and 7; Puppet 3.8.x.
 
