@@ -57,6 +57,12 @@ class dsu {
       ensure => file,
       source => 'puppet:///modules/dsu/omsa-config-alerts.sh',
     }
+    file { '/etc/yum.repos.d/dell-system-update.repo':
+      ensure => absent,
+    }
+    file { '/etc/yum.repos.d/dsu_repository.repo':
+      ensure => absent,
+    }
 
     file_line { 'omsa-alerts':
       path   => '/etc/aliases',
@@ -64,11 +70,19 @@ class dsu {
       match  => '^omsa-alerts:',
       notify => 'Exec[newaliases]',
     }
+    file_line { 'stsvc.ini':
+      path    => '/opt/dell/srvadmin/etc/srvadmin-storage/stsvc.ini',
+      line    => '; vil7=dsm_sm_psrvil',
+      match   => '^vil7=dsm_sm_psrvil',
+      require => 'Package[srvadmin-all]',
+    }
 
     package { [ 'OpenIPMI', 'dell-system-update', 'srvadmin-all', ]:
       ensure  => present,
       require => [ 'Yumrepo[dell-system-update_independent]',
                    'Yumrepo[dell-system-update_dependent]',
+                   'File[/etc/yum.repos.d/dell-system-update.repo]',
+                   'File[/etc/yum.repos.d/dsu_repository.repo]',
                  ],
     }
 
@@ -80,7 +94,9 @@ class dsu {
       stop     => "${srvadmin_services_script} stop",
       status   => "${srvadmin_services_script} status",
       restart  => "${srvadmin_services_script} restart",
-      require  => 'Package[srvadmin-all]',
+      require  => [ 'Package[srvadmin-all]',
+                    'File_line[stsvc.ini]',
+                  ],
       notify   => 'Exec[omsa-config-alerts]',
     }
 
